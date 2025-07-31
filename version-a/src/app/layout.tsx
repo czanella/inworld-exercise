@@ -9,16 +9,12 @@ export const metadata: Metadata = {
 
 type RootLayoutProps = Readonly<{ children: React.ReactNode; }>;
 
-export default function RootLayout({
-  children,
-}: RootLayoutProps) {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
         <Header />
-        <section className="main">
-          {children}
-        </section>
+        {children}
       </body>
     </html>
   );

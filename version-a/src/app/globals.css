@@ -1,5 +1,6 @@
 :root {
   --orange: #ff8800;
+  --dark-orange: #ac5c00;
   --white: #fff;
   --black: #171717;
   --grey: #737373;
@@ -34,7 +35,7 @@ a {
   text-decoration: none;
 }
 
-section.main {
+section {
   padding: 20px;
 }
 

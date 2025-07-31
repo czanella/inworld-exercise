@@ -1,4 +1,5 @@
 import { Recipe } from "@prisma/client";
+import Link from "next/link";
 import styles from './recipe-button.module.css';
 
 type RecipeButtonProps = {
@@ -7,7 +8,7 @@ type RecipeButtonProps = {
 
 export function RecipeButton({ recipe }: RecipeButtonProps) {
   return (
-    <div className={styles.recipeButton}>
+    <Link href={`/recipe/${recipe.id}`} className={styles.recipeButton}>
       <div className={styles.title}>
         {recipe.title}
       </div>
@@ -17,6 +18,6 @@ export function RecipeButton({ recipe }: RecipeButtonProps) {
         {recipe.prepTime ? <span>Prep: {recipe.prepTime}min</span> : null}
         {recipe.cookTime ? <span>Cook: {recipe.cookTime}min</span> : null}
       </div>
-    </div>
+    </Link>
   );
 }
