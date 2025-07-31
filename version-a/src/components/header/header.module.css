@@ -1,0 +1,5 @@
+.header {
+  background-color: var(--orange);
+  color: var(--white);
+  padding: 20px;
+}

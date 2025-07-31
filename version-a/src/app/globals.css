@@ -1,13 +1,12 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --orange: #ff8800;
+  --white: #fff;
+  --black: #171717;
+  --grey: #737373;
+  --light-grey: #e0e0e0;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: var(--white);
+  --foreground: var(--black);
 }
 
 html,
@@ -35,8 +34,28 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+section.main {
+  padding: 20px;
+}
+
+input[type="text"], input[type="password"] {
+  background-color: var(--light-grey);
+  color: var(--grey);
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid var(--grey);
+  border-radius: 5px 5px 0px 0px;
+}
+
+button, .button, input[type="submit"] {
+  all: unset;
+  background-color: var(--orange);
+  color: var(--white);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 5px;
 }
