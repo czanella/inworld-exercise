@@ -1,4 +1,5 @@
 import { getRecipe } from "@/actions/get-recipe";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { z } from 'zod';
 import styles from './recipe.module.css';
@@ -27,26 +28,33 @@ export default async function Recipe({ params }: RecipeProps) {
   }
 
   return (
-    <section className={styles.recipe}>
-      <div className={styles.title}>
-        {recipe.title}
-      </div>
-      <div className={styles.sectionTitle}>
-        Ingredients
-      </div>
-      <ul>
-        {recipe.ingredients.map(
-          (ingredient, i) => <li key={i}>{ingredient}</li>,
-        )}
-      </ul>
-      <div className={styles.sectionTitle}>
-        Instructions
-      </div>
-      <ol>
-        {recipe.steps.map(
-          (step, i) => <li key={i}>{step}</li>,
-        )}
-      </ol>
-    </section>
+    <>
+      <header className={styles.recipeHeader}>
+        <Link href='/' className='button'>&lt; Back</Link>
+        <span className={styles.headerTitle}>Recipe Details</span>
+        <button className={styles.hidden}>&lt; Back</button>
+      </header>
+      <section className={styles.recipe}>
+        <div className={styles.title}>
+          {recipe.title}
+        </div>
+        <div className={styles.sectionTitle}>
+          Ingredients
+        </div>
+        <ul>
+          {recipe.ingredients.map(
+            (ingredient, i) => <li key={i}>{ingredient}</li>,
+          )}
+        </ul>
+        <div className={styles.sectionTitle}>
+          Instructions
+        </div>
+        <ol>
+          {recipe.steps.map(
+            (step, i) => <li key={i}>{step}</li>,
+          )}
+        </ol>
+      </section>
+    </>
   );
 }
