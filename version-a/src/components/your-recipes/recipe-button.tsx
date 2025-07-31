@@ -14,8 +14,8 @@ export function RecipeButton({ recipe }: RecipeButtonProps) {
       <div className={styles.items}>
         <span>{recipe.ingredients.length} ingredients</span>
         <span>{recipe.steps.length} steps</span>
-        <span>Prep: {recipe.prepTime}min</span>
-        <span>Cook: {recipe.cookTime}min</span>
+        {recipe.prepTime ? <span>Prep: {recipe.prepTime}min</span> : null}
+        {recipe.cookTime ? <span>Cook: {recipe.cookTime}min</span> : null}
       </div>
     </div>
   );
