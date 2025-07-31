@@ -1,6 +1,7 @@
 'use server'
 import { prisma } from "@/lib/prisma";
 import { RecipeSchema } from "@/schemas";
+import { revalidatePath } from "next/cache";
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 
@@ -25,15 +26,14 @@ export async function addRecipe(url: string) {
 
   const newRecipe = await prisma.recipe.create({
     data: {
-      title: recipe.name,
+      title: recipe.title,
       cookTime: recipe.cookTime ?? 0,
       prepTime: recipe.prepTime ?? 0,
-      content: {
-        ingredients: recipe.ingredients,
-        steps: recipe.steps,
-      },
+      ingredients: recipe.ingredients,
+      steps: recipe.steps,
     },
   });
 
+  revalidatePath('/profile');
   return newRecipe;
 }

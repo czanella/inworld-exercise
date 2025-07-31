@@ -12,10 +12,10 @@ export function RecipeButton({ recipe }: RecipeButtonProps) {
         {recipe.title}
       </div>
       <div className={styles.items}>
-        <span>One</span>
-        <span>One</span>
-        <span>One</span>
-        <span>One</span>
+        <span>{recipe.ingredients.length} ingredients</span>
+        <span>{recipe.steps.length} steps</span>
+        <span>Prep: {recipe.prepTime}min</span>
+        <span>Cook: {recipe.cookTime}min</span>
       </div>
     </div>
   );

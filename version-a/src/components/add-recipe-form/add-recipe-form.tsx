@@ -22,6 +22,7 @@ export function AddRecipeForm() {
           setPending(true);
           const recipe = await addRecipe(url);
           console.log(recipe);
+          setUrl('');
           setPending(false);
         }}
         className={classNames({
