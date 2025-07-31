@@ -1,4 +1,5 @@
 'use server'
+import { prisma } from "@/lib/prisma";
 import { RecipeSchema } from "@/schemas";
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
@@ -20,5 +21,19 @@ export async function addRecipe(url: string) {
     },
   });
 
-  return JSON.parse(response.output_text);
+  const recipe = JSON.parse(response.output_text);
+
+  const newRecipe = await prisma.recipe.create({
+    data: {
+      title: recipe.name,
+      cookTime: recipe.cookTime ?? 0,
+      prepTime: recipe.prepTime ?? 0,
+      content: {
+        ingredients: recipe.ingredients,
+        steps: recipe.steps,
+      },
+    },
+  });
+
+  return newRecipe;
 }
