@@ -1,0 +1,31 @@
+.speechBubble {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  max-width: 75%;
+}
+
+.textContainer {
+  font-size: 14px;
+  color: var(--black);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--light-grey);
+}
+
+.time {
+  font-size: 10px;
+  color: var(--light-grey);
+}
+
+.user.speechBubble {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.user .textContainer {
+  background-color: var(--light-blue);
+  color: var(--white);
+  border: none;
+}
