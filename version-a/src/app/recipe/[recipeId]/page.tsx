@@ -38,6 +38,9 @@ export default async function Recipe({ params }: RecipeProps) {
         <div className={styles.title}>
           {recipe.title}
         </div>
+        <Link href={`/recipe/${recipeId}/cook`} className='button'>
+          🎙️ Start Cooking (Voice Mode)
+        </Link>
         <div className={styles.sectionTitle}>
           Ingredients
         </div>

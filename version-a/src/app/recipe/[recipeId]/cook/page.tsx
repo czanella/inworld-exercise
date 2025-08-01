@@ -41,10 +41,9 @@ export default function Cook() {
         <div className={styles.cookTitle}>
           {recipe.title}
         </div>
-        🎙️ Voice Cooking Assistant
+        🎙️ Voice Cooking Assistant {recording ? '- Recording...' : null}
       </header>
       <section>
-        {recording ? 'Recording...' : 'Idle'}
       </section>
     </>
   );
