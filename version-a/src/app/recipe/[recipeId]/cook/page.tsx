@@ -15,25 +15,34 @@ export default function Cook() {
   const [thread, setThread] = useState<AgentInputItem[]>([]);
 
   const { recipeId } = useParams<CookProps>();
-  const { data: recipe, isLoading, error } = useGetRecipe(parseInt(recipeId))
+  const {
+    data: recipe,
+    isLoading: recipeIsLoading,
+    error: recipeError,
+  } = useGetRecipe(parseInt(recipeId))
 
-  const { trigger: triggerSpeechToText } = useSpeechToText();
+  const {
+    trigger: speechToTextTrigger,
+    isMutating: speechToTriggerIsMutating,
+  } = useSpeechToText();
+
+  const recordingActive = Boolean(recipe) && !speechToTriggerIsMutating;
   const onRecord = useCallback(
     (audio: Float32Array<ArrayBufferLike>) => {
-      triggerSpeechToText(audio).then(content => {
+      speechToTextTrigger(audio).then(content => {
         setThread(thread => [...thread, { role: 'user', content }]);
       });
     },
-    [triggerSpeechToText],
+    [speechToTextTrigger],
   );
-  const recording = useVad({ onRecord, active: Boolean(recipe) });
+  const recording = useVad({ onRecord, active: recordingActive });
 
-  if (error) {
-    console.error(error);
+  if (recipeError) {
+    console.error(recipeError);
     return <section>Error! Check the console for details</section>;
   }
 
-  if (isLoading) {
+  if (recipeIsLoading) {
     return <section>Loading...</section>;
   }
 
