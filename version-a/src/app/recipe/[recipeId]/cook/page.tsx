@@ -1,11 +1,10 @@
 'use client'
 import { SpeechBubble } from "@/components/speech-bubble";
+import { Spinner } from "@/components/spinner/spinner";
 import { useGetRecipe } from "@/hooks/useGetRecipe";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useVad } from "@/hooks/useVad";
-import Spinner from '@/svg/spinner.svg';
 import { AgentInputItem } from "@openai/agents";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import styles from './cook.module.css';
@@ -53,7 +52,7 @@ export default function Cook() {
   if (recipeIsLoading) {
     return (
       <section className={styles.chat}>
-        <Image src={Spinner} alt='loading' className={styles.spinner} />
+        <Spinner className={styles.spinner} />
       </section>
     );
   }
@@ -72,7 +71,7 @@ export default function Cook() {
       </header>
       <section className={styles.chat}>
         {thread.map((t, i) => <SpeechBubble key={i} content={t} />)}
-        {loading ? <Image src={Spinner} alt='loading' className={styles.spinner} /> : null}
+        {loading ? <Spinner className={styles.spinner} /> : null}
       </section>
     </>
   );
