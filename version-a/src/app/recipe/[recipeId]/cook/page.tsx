@@ -1,5 +1,6 @@
 'use client'
 import { useGetRecipe } from "@/hooks/useGetRecipe";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useVad } from "@/hooks/useVad";
 import { useParams } from "next/navigation";
 import { useCallback } from "react";
@@ -11,12 +12,12 @@ type CookProps = {
 
 export default function Cook() {
   const { recipeId } = useParams<CookProps>();
-
+  const { trigger: triggerSpeechToText } = useSpeechToText();
   const onRecord = useCallback(
     (audio: Float32Array<ArrayBufferLike>) => {
-      console.log('Yay recorded!', audio);
+      triggerSpeechToText(audio).then(r => console.log('Hey!', r));
     },
-    [],
+    [triggerSpeechToText],
   )
 
   const { data: recipe, isLoading, error } = useGetRecipe(parseInt(recipeId))
