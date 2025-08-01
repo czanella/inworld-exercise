@@ -20,8 +20,7 @@ export function AddRecipeForm() {
       <button
         onClick={async () => {
           setPending(true);
-          const recipe = await addRecipe(url);
-          console.log(recipe);
+          await addRecipe(url);
           setUrl('');
           setPending(false);
         }}
