@@ -1,12 +1,12 @@
 'use client'
 import { SpeechBubble } from "@/components/speech-bubble";
 import { Spinner } from "@/components/spinner/spinner";
-import { useGetRecipe } from "@/hooks/useGetRecipe";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
+import { useStartCooking } from "@/hooks/useStartCooking";
 import { useVad } from "@/hooks/useVad";
 import { AgentInputItem } from "@openai/agents";
 import { useParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from './cook.module.css';
 
 type CookProps = {
@@ -18,17 +18,25 @@ export default function Cook() {
 
   const { recipeId } = useParams<CookProps>();
   const {
-    data: recipe,
-    isLoading: recipeIsLoading,
-    error: recipeError,
-  } = useGetRecipe(parseInt(recipeId))
+    data: context,
+    isLoading: contextIsLoading,
+    error: contextError,
+  } = useStartCooking(parseInt(recipeId))
+
+  useEffect(() => {
+    console.log('!!!!!!!!!!', context);
+    if (!context) {
+      return;
+    }
+    setThread(context.thread);
+  }, [context]);
 
   const {
     trigger: speechToTextTrigger,
     isMutating: speechToTriggerIsMutating,
   } = useSpeechToText();
 
-  const recordingActive = Boolean(recipe) && !speechToTriggerIsMutating;
+  const recordingActive = Boolean(context) && !speechToTriggerIsMutating;
   const onRecord = useCallback(
     (audio: Float32Array<ArrayBufferLike>) => {
       speechToTextTrigger(audio).then(content => {
@@ -42,14 +50,14 @@ export default function Cook() {
   );
   const recording = useVad({ onRecord, active: recordingActive });
 
-  const loading = recipeIsLoading || speechToTriggerIsMutating;
+  const loading = contextIsLoading || speechToTriggerIsMutating;
 
-  if (recipeError) {
-    console.error(recipeError);
+  if (contextError) {
+    console.error(contextError);
     return <section>Error! Check the console for details</section>;
   }
 
-  if (recipeIsLoading) {
+  if (contextIsLoading) {
     return (
       <section className={styles.chat}>
         <Spinner className={styles.spinner} />
@@ -57,7 +65,7 @@ export default function Cook() {
     );
   }
 
-  if (!recipe) {
+  if (!context) {
     return <section>Recipe not found</section>;
   }
 
@@ -65,12 +73,12 @@ export default function Cook() {
     <>
       <header className={styles.cookHeader}>
         <div className={styles.cookTitle}>
-          {recipe.title}
+          {context.recipe.title}
         </div>
         🎙️ Voice Cooking Assistant {recording ? '- Recording...' : null}
       </header>
       <section className={styles.chat}>
-        {thread.map((t, i) => <SpeechBubble key={i} content={t} />)}
+        {thread.slice(1).map((t, i) => <SpeechBubble key={i} content={t} />)}
         {loading ? <Spinner className={styles.spinner} /> : null}
       </section>
     </>

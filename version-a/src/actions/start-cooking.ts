@@ -3,7 +3,7 @@ import { cookingAssistant } from "@/agents/cooking-assistant";
 import { run } from "@openai/agents";
 import { getRecipe } from "./get-recipe";
 
-export async function talkToCookingAssistant(recipeId: number) {
+export async function startCooking(recipeId: number) {
   const recipe = await getRecipe(recipeId);
   if (!recipe) {
     return null;
@@ -19,5 +19,8 @@ export async function talkToCookingAssistant(recipeId: number) {
     ].join('\n'),
   );
 
-  return result.history;
+  return {
+    recipe,
+    thread: result.history,
+  };
 }

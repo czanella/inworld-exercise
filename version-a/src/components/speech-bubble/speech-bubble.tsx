@@ -7,10 +7,21 @@ type SpeechBubbleProps = {
   content: AgentInputItem;
 }
 
+function extractMessage(item: AgentInputItem) {
+  if (item.type !== 'message') {
+    return '';
+  }
+  if (item.role === 'assistant' && item.content[0].type === 'output_text') {
+    return item.content[0].text;
+  }
+  if (typeof item.content === 'string') {
+    return item.content;
+  }
+  return '';
+}
+
 export function SpeechBubble({ content }: SpeechBubbleProps) {
-  const message = content.type === 'message' && typeof content.content === 'string'
-    ? content.content
-    : null;
+  const message = extractMessage(content);
 
   const isUser = content.type === 'message' && content.role === 'user';
 
