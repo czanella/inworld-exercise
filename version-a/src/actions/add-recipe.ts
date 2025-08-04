@@ -1,24 +1,24 @@
 'use server'
-import { prisma } from "@/lib/prisma";
-import { RecipeSchema } from "@/schemas";
-import { revalidatePath } from "next/cache";
-import OpenAI from "openai";
-import { zodTextFormat } from "openai/helpers/zod";
+import { prisma } from '@/lib/prisma';
+import { RecipeSchema } from '@/schemas';
+import { revalidatePath } from 'next/cache';
+import OpenAI from 'openai';
+import { zodTextFormat } from 'openai/helpers/zod';
 
 export async function addRecipe(url: string) {
   const client = new OpenAI();
 
   const response = await client.responses.create({
-    model: "gpt-4.1",
+    model: process.env.OPENAI_MODEL,
     input: [
-      { role: "system", content: "Extract the recipe information." },
+      { role: 'system', content: 'Extract the recipe information.' },
       {
-        role: "user",
+        role: 'user',
         content: url,
       },
     ],
     text: {
-      format: zodTextFormat(RecipeSchema, "recipe"),
+      format: zodTextFormat(RecipeSchema, 'recipe'),
     },
   });
 
