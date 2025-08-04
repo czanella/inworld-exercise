@@ -3,6 +3,7 @@ import { SpeechBubble } from "@/components/speech-bubble";
 import { Spinner } from "@/components/spinner/spinner";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useStartCooking } from "@/hooks/useStartCooking";
+import { useTalkToCookingAssistant } from "@/hooks/useTalkToCookingAssistant";
 import { useVad } from "@/hooks/useVad";
 import { AgentInputItem } from "@openai/agents";
 import { useParams } from "next/navigation";
@@ -14,9 +15,12 @@ type CookProps = {
 };
 
 export default function Cook() {
+  const { recipeId } = useParams<CookProps>();
+
+  // Stores the chat thread
   const [thread, setThread] = useState<AgentInputItem[]>([]);
 
-  const { recipeId } = useParams<CookProps>();
+  // Loads the recipe and creates the context for the thread
   const {
     data: context,
     isLoading: contextIsLoading,
@@ -24,34 +28,48 @@ export default function Cook() {
   } = useStartCooking(parseInt(recipeId))
 
   useEffect(() => {
-    console.log('!!!!!!!!!!', context);
     if (!context) {
       return;
     }
     setThread(context.thread);
   }, [context]);
 
+  // Sends new messages to the chat
+  const {
+    trigger: chatTrigger,
+    isMutating: chatIsMutating,
+  } = useTalkToCookingAssistant();
+
+  // Main chat loop - VAD, speech to text and chat with agent
   const {
     trigger: speechToTextTrigger,
     isMutating: speechToTriggerIsMutating,
   } = useSpeechToText();
 
-  const recordingActive = Boolean(context) && !speechToTriggerIsMutating;
+  const recordingActive = Boolean(context) && !speechToTriggerIsMutating && !chatIsMutating;
   const onRecord = useCallback(
-    (audio: Float32Array<ArrayBufferLike>) => {
-      speechToTextTrigger(audio).then(content => {
-        setThread(thread => [
-          ...thread,
-          { role: 'user', type: 'message', content },
-        ]);
-      });
+    async (audio: Float32Array<ArrayBufferLike>) => {
+      const text = await speechToTextTrigger(audio);
+      setThread(thread => [
+        ...thread,
+        { role: 'user', type: 'message', content: text },
+      ]);
+      const newThread = await chatTrigger({ text, thread });
+      setThread(newThread);
+
     },
-    [speechToTextTrigger],
+    [chatTrigger, speechToTextTrigger, thread],
   );
   const recording = useVad({ onRecord, active: recordingActive });
 
-  const loading = contextIsLoading || speechToTriggerIsMutating;
+  // Scroll when a new message pops up
+  useEffect(() => {
+    if (thread.length > 2) {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  }, [thread.length])
 
+  // Output
   if (contextError) {
     console.error(contextError);
     return <section>Error! Check the console for details</section>;
@@ -79,7 +97,7 @@ export default function Cook() {
       </header>
       <section className={styles.chat}>
         {thread.slice(1).map((t, i) => <SpeechBubble key={i} content={t} />)}
-        {loading ? <Spinner className={styles.spinner} /> : null}
+        {recordingActive ? null : <Spinner className={styles.spinner} />}
       </section>
     </>
   );

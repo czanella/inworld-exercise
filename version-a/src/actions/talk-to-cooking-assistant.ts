@@ -4,7 +4,7 @@ import { AgentInputItem, run } from "@openai/agents";
 
 export async function talkToCookingAssistant(
   text: string,
-  thread: AgentInputItem[] = [],
+  thread: AgentInputItem[],
 ) {
   const result = await run(
     cookingAssistant,
