@@ -1,5 +1,6 @@
 import { Agent } from "@openai/agents";
 import { addNoteToRecipeTool } from "./tools/add-note-to-recipe";
+import { updateRecipeTool } from "./tools/update-recipe";
 
 export const cookingAssistant = new Agent({
   model: process.env.OPENAI_MODEL,
@@ -9,5 +10,5 @@ export const cookingAssistant = new Agent({
     'people cooking by reading instructions from a recipe,',
     'as well as taking notes and making updates to that recipe as needed.',
   ].join(' '),
-  tools: [addNoteToRecipeTool],
+  tools: [addNoteToRecipeTool, updateRecipeTool],
 });
