@@ -6,9 +6,9 @@ import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 
 export async function addRecipe(url: string) {
-  const client = new OpenAI();
+  const openai = new OpenAI();
 
-  const response = await client.responses.create({
+  const response = await openai.responses.create({
     model: process.env.OPENAI_MODEL,
     input: [
       { role: 'system', content: 'Extract the recipe information.' },

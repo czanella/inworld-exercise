@@ -4,7 +4,9 @@ import { Spinner } from "@/components/spinner/spinner";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useStartCooking } from "@/hooks/useStartCooking";
 import { useTalkToCookingAssistant } from "@/hooks/useTalkToCookingAssistant";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useVad } from "@/hooks/useVad";
+import { extractMessage } from "@/lib/extractMessage";
 import { AgentInputItem } from "@openai/agents";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -40,13 +42,51 @@ export default function Cook() {
     isMutating: chatIsMutating,
   } = useTalkToCookingAssistant();
 
+  // Play message sound when agent sends a text
+  const [isPlayingSound, setIsPlayingSound] = useState(false);
+  const {
+    trigger: textToSpeechTrigger,
+    isMutating: textToSpeechIsMutating,
+  } = useTextToSpeech()
+
+  useEffect(() => {
+    if (thread.length === 0) {
+      return;
+    }
+
+    const lastMessage = thread[thread.length - 1];
+    if (lastMessage.type !== 'message' || lastMessage.role === 'user') {
+      return;
+    }
+
+    let audio: HTMLAudioElement | null = null;
+    const onAudioEnd = () => { setIsPlayingSound(false) };
+    const text = extractMessage(lastMessage);
+    textToSpeechTrigger({ text }).then(audioBlob => {
+      const audioUrl = URL.createObjectURL(audioBlob);
+      audio = new Audio(audioUrl);
+      audio.addEventListener('ended', onAudioEnd);
+      setIsPlayingSound(true);
+      audio.play();
+    });
+
+    return () => {
+      audio?.removeEventListener('ended', onAudioEnd);
+      audio?.pause();
+    }
+  }, [textToSpeechTrigger, thread]);
+
   // Main chat loop - VAD, speech to text and chat with agent
   const {
     trigger: speechToTextTrigger,
     isMutating: speechToTriggerIsMutating,
   } = useSpeechToText();
 
-  const recordingActive = Boolean(context) && !speechToTriggerIsMutating && !chatIsMutating;
+  const loading = !Boolean(context) ||
+    speechToTriggerIsMutating ||
+    chatIsMutating ||
+    textToSpeechIsMutating;
+  const recordingActive = !loading && !isPlayingSound;
   const onRecord = useCallback(
     async (audio: Float32Array<ArrayBufferLike>) => {
       const text = await speechToTextTrigger(audio);
@@ -97,7 +137,7 @@ export default function Cook() {
       </header>
       <section className={styles.chat}>
         {thread.slice(1).map((t, i) => <SpeechBubble key={i} content={t} />)}
-        {recordingActive ? null : <Spinner className={styles.spinner} />}
+        {loading ? <Spinner className={styles.spinner} /> : null}
       </section>
     </>
   );
