@@ -6,7 +6,6 @@ import { useStartCooking } from "@/hooks/useStartCooking";
 import { useTalkToCookingAssistant } from "@/hooks/useTalkToCookingAssistant";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useVad } from "@/hooks/useVad";
-import { extractMessage } from "@/lib/extractMessage";
 import { AgentInputItem } from "@openai/agents";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -50,6 +49,7 @@ export default function Cook() {
   } = useTextToSpeech()
 
   useEffect(() => {
+    console.log('THREAD!', thread);
     if (thread.length === 0) {
       return;
     }
@@ -59,24 +59,24 @@ export default function Cook() {
       return;
     }
 
-    let audio: HTMLAudioElement | null = null;
-    const onAudioEnd = () => { setIsPlayingSound(false) };
-    const text = extractMessage(lastMessage);
-    textToSpeechTrigger({ text }).then(audioBlob => {
-      const audioUrl = URL.createObjectURL(audioBlob);
-      audio = new Audio(audioUrl);
-      audio.addEventListener('ended', onAudioEnd);
-      setIsPlayingSound(true);
-      audio.play();
-    });
-
-    return () => {
-      if (!audio) {
-        return;
-      }
-      audio.removeEventListener('ended', onAudioEnd);
-      audio.currentTime = audio.duration;
-    }
+    // let audio: HTMLAudioElement | null = null;
+    // const onAudioEnd = () => { setIsPlayingSound(false) };
+    // const text = extractMessage(lastMessage);
+    // textToSpeechTrigger({ text }).then(audioBlob => {
+    //   const audioUrl = URL.createObjectURL(audioBlob);
+    //   audio = new Audio(audioUrl);
+    //   audio.addEventListener('ended', onAudioEnd);
+    //   setIsPlayingSound(true);
+    //   audio.play();
+    // });
+    // 
+    // return () => {
+    //   if (!audio) {
+    //     return;
+    //   }
+    //   audio.removeEventListener('ended', onAudioEnd);
+    //   audio.currentTime = audio.duration;
+    // }
   }, [textToSpeechTrigger, thread]);
 
   // Main chat loop - VAD, speech to text and chat with agent

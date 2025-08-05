@@ -15,6 +15,10 @@ export function SpeechBubble({ content }: SpeechBubbleProps) {
 
   const time = useRef(new Date().toDateString());
 
+  if (content.type !== 'message') {
+    return null;
+  }
+
   return (
     <div className={
       classNames(
