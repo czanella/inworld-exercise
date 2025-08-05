@@ -93,7 +93,7 @@ export default function Cook() {
 
   const onSpeechEnd = useCallback(
     async (audio: Float32Array<ArrayBufferLike>) => {
-      if (recordingActive) {
+      if (!recordingActive) {
         return;
       }
       const text = await speechToTextTrigger(audio);
