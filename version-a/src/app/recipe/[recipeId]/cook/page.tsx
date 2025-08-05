@@ -71,8 +71,11 @@ export default function Cook() {
     });
 
     return () => {
-      audio?.removeEventListener('ended', onAudioEnd);
-      audio?.pause();
+      if (!audio) {
+        return;
+      }
+      audio.removeEventListener('ended', onAudioEnd);
+      audio.currentTime = audio.duration;
     }
   }, [textToSpeechTrigger, thread]);
 
