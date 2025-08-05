@@ -114,7 +114,7 @@ export default function Cook() {
     if (thread.length > 2) {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
-  }, [thread.length])
+  }, [thread.length, loading]);
 
   // Output
   if (contextError) {
