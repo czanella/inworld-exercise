@@ -49,7 +49,6 @@ export default function Cook() {
   } = useTextToSpeech()
 
   useEffect(() => {
-    console.log('THREAD!', thread);
     if (thread.length === 0) {
       return;
     }

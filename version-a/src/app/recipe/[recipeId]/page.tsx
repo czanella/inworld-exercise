@@ -57,6 +57,18 @@ export default async function Recipe({ params }: RecipeProps) {
             (step, i) => <li key={i}>{step}</li>,
           )}
         </ol>
+        {recipe.notes.length === 0 ? null : (
+          <>
+            <div className={styles.sectionTitle}>
+              Notes
+            </div>
+            <ul>
+              {recipe.notes.map(
+                (note, i) => <li key={i}>{note}</li>,
+              )}
+            </ul>
+          </>
+        )}
       </section>
     </>
   );
