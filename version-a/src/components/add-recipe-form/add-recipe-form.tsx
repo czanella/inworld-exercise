@@ -5,7 +5,7 @@ import { useState } from 'react';
 import styles from './add-recipe-form.module.css';
 
 export function AddRecipeForm() {
-  const [url, setUrl] = useState('https://www.allrecipes.com/recipe/16899/beef-wellington/ ');
+  const [url, setUrl] = useState('');
   const [pending, setPending] = useState(false);
 
   return (

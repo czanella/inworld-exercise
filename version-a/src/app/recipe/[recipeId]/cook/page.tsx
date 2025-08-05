@@ -5,8 +5,9 @@ import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useStartCooking } from "@/hooks/useStartCooking";
 import { useTalkToCookingAssistant } from "@/hooks/useTalkToCookingAssistant";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { useVad } from "@/hooks/useVad";
+import { extractMessage } from "@/lib/extractMessage";
 import { AgentInputItem } from "@openai/agents";
+import { useMicVAD } from "@ricky0123/vad-react";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import styles from './cook.module.css';
@@ -58,24 +59,24 @@ export default function Cook() {
       return;
     }
 
-    // let audio: HTMLAudioElement | null = null;
-    // const onAudioEnd = () => { setIsPlayingSound(false) };
-    // const text = extractMessage(lastMessage);
-    // textToSpeechTrigger({ text }).then(audioBlob => {
-    //   const audioUrl = URL.createObjectURL(audioBlob);
-    //   audio = new Audio(audioUrl);
-    //   audio.addEventListener('ended', onAudioEnd);
-    //   setIsPlayingSound(true);
-    //   audio.play();
-    // });
-    // 
-    // return () => {
-    //   if (!audio) {
-    //     return;
-    //   }
-    //   audio.removeEventListener('ended', onAudioEnd);
-    //   audio.currentTime = audio.duration;
-    // }
+    let audio: HTMLAudioElement | null = null;
+    const onAudioEnd = () => { setIsPlayingSound(false) };
+    const text = extractMessage(lastMessage);
+    textToSpeechTrigger({ text }).then(audioBlob => {
+      const audioUrl = URL.createObjectURL(audioBlob);
+      audio = new Audio(audioUrl);
+      audio.addEventListener('ended', onAudioEnd);
+      setIsPlayingSound(true);
+      audio.play();
+    });
+    
+    return () => {
+      if (!audio) {
+        return;
+      }
+      audio.removeEventListener('ended', onAudioEnd);
+      audio.currentTime = audio.duration;
+    }
   }, [textToSpeechTrigger, thread]);
 
   // Main chat loop - VAD, speech to text and chat with agent
@@ -89,8 +90,12 @@ export default function Cook() {
     chatIsMutating ||
     textToSpeechIsMutating;
   const recordingActive = !loading && !isPlayingSound;
-  const onRecord = useCallback(
+
+  const onSpeechEnd = useCallback(
     async (audio: Float32Array<ArrayBufferLike>) => {
+      if (recordingActive) {
+        return;
+      }
       const text = await speechToTextTrigger(audio);
       setThread(thread => [
         ...thread,
@@ -100,9 +105,9 @@ export default function Cook() {
       setThread(newThread);
 
     },
-    [chatTrigger, speechToTextTrigger, thread],
+    [chatTrigger, recordingActive, speechToTextTrigger, thread],
   );
-  const recording = useVad({ onRecord, active: recordingActive });
+  const vad = useMicVAD({ onSpeechEnd });
 
   // Scroll when a new message pops up
   useEffect(() => {
@@ -135,7 +140,7 @@ export default function Cook() {
         <div className={styles.cookTitle}>
           {context.recipe.title}
         </div>
-        🎙️ Voice Cooking Assistant {recording ? '- Recording...' : null}
+        🎙️ Voice Cooking Assistant {vad.userSpeaking ? '- Recording...' : null}
       </header>
       <section className={styles.chat}>
         {thread.slice(1).map((t, i) => <SpeechBubble key={i} content={t} />)}
