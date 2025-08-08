@@ -2,7 +2,6 @@
   "name": "@inworld/runtime-getting-started",
   "version": "0.4.3",
   "main": "index.ts",
-  "type": "module",
   "scripts": {
     "start": "npx tsx watch index.ts"
   },

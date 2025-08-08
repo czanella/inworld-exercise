@@ -2,14 +2,14 @@ import express from 'express';
 import multer from 'multer';
 import { v4 } from 'uuid';
 import WavDecoder from 'wav-decoder';
-import { cookingExecutor } from './graph/graph.js';
+import { cookingAudioInput, cookingTextInput } from './graph/graph.js';
 import { consumeStream } from './lib/consumeStream.js';
 import { toArrayBuffer } from './lib/toArrayBuffer.js';
+import { ChatMessage } from './types.js';
 
 const port = parseInt(process.env.PORT ?? '3000');
 
 const app = express();
-app.use(express.json());
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -18,7 +18,19 @@ app.get('/', (req, res) => {
   res.send('Hello there!')
 });
 
-app.post('/chat', upload.single('audio'), async (req, res) => {
+app.post('/chat', upload.none(), async (req, res) => {
+  const message: string = req.body.message;
+  const cookingStream = await cookingTextInput.execute(
+    [message, []],
+    v4(),
+  );
+
+  const result = await consumeStream(cookingStream);
+
+  res.json({ messages: result });
+});
+
+app.put('/chat', upload.single('audio'), async (req, res) => {
   try {
     const audioFile = req.file;
 
@@ -30,14 +42,22 @@ app.post('/chat', upload.single('audio'), async (req, res) => {
       toArrayBuffer(audioFile.buffer)
     );
 
-    const cookingStream = await cookingExecutor.execute({
-      data: audioData.channelData[0],
-      sampleRate: audioData.sampleRate,
-    }, v4());
+    const messages: ChatMessage[] = JSON.parse(req.body.messages);
 
-    const message = await consumeStream(cookingStream);
+    const cookingStream = await cookingAudioInput.execute(
+      [
+        {
+          data: audioData.channelData[0],
+          sampleRate: audioData.sampleRate,
+        },
+        messages,
+      ],
+      v4(),
+    );
 
-    res.json({ message });
+    const result = await consumeStream(cookingStream);
+
+    res.json({ messages: result });
   } catch (error) {
     console.error('Error processing upload:', error);
     res.status(500).json({ error: 'Internal server error' });
